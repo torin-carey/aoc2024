@@ -1,32 +1,48 @@
-use std::ops::{Add, Sub};
+use std::ops::{
+    Add, AddAssign,
+    Sub, SubAssign,
+    Mul, MulAssign,
+};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 #[repr(u8)]
 pub enum Dir {
     #[default]
-    U,
-    D,
-    L,
-    R,
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW,
 }
 
 impl Dir {
-    pub fn as_quart(&self) -> u32 {
+    pub fn as_quart(&self) -> usize {
         match self {
-            Dir::U => 0,
-            Dir::R => 1,
-            Dir::D => 2,
-            Dir::L => 3,
+            Dir::N  => 0,
+            Dir::NE => 1,
+            Dir::E  => 2,
+            Dir::SE => 3,
+            Dir::S  => 4,
+            Dir::SW => 5,
+            Dir::W  => 6,
+            Dir::NW => 7,
         }
     }
 
-    pub fn from_quart(quarts: u32) -> Self {
-        match quarts % 4 {
-            0 => Dir::U,
-            1 => Dir::R,
-            2 => Dir::D,
-            3 => Dir::L,
-            _ => unreachable!(),
+    pub fn from_quart(quarts: usize) -> Self {
+        match quarts % 8 {
+            0 => Dir::N,
+            1 => Dir::NE,
+            2 => Dir::E,
+            3 => Dir::SE,
+            4 => Dir::S,
+            5 => Dir::SW,
+            6 => Dir::W,
+            7 => Dir::NW,
+            _ => unreachable!()
         }
     }
 }
@@ -47,15 +63,28 @@ impl Sub<Dir> for Dir {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-#[repr(u8)]
-pub enum DiagDir {
-    N,
-    NE,
-    E,
-    SE,
-    S,
-    SW,
-    W,
-    NW,
+impl Mul<usize> for Dir {
+    type Output = Self;
+
+    fn mul(self, factor: usize) -> Self::Output {
+        Self::from_quart(self.as_quart().wrapping_mul(factor))
+    }
+}
+
+impl AddAssign<Dir> for Dir {
+    fn add_assign(&mut self, other: Self) {
+        *self = *self + other
+    }
+}
+
+impl SubAssign<Dir> for Dir {
+    fn sub_assign(&mut self, other: Self) {
+        *self = *self - other
+    }
+}
+
+impl MulAssign<usize> for Dir {
+    fn mul_assign(&mut self, other: usize) {
+        *self = *self * other
+    }
 }

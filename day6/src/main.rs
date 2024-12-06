@@ -13,13 +13,13 @@ enum Tile {
 }
 
 fn part1(mut pos: Coords, map: &mut Map<Tile>) -> Result<usize> {
-    let mut dir = Dir::U;
+    let mut dir = Dir::N;
 
     loop {
         map[pos] = Tile::Hit;
         let Some(to) = map.add(pos, dir) else { break };
         if map[to] == Tile::Wall {
-            dir = dir + Dir::R;
+            dir = dir + Dir::E;
         } else {
             pos = to;
         }
@@ -30,11 +30,11 @@ fn part1(mut pos: Coords, map: &mut Map<Tile>) -> Result<usize> {
 
 fn does_loop(mut pos: Coords, map: &Map<Tile>, set: &mut HashSet<(Coords, Dir)>) -> bool {
     set.clear();
-    let mut dir = Dir::U;
+    let mut dir = Dir::N;
     while set.insert((pos, dir)) {
         let Some(to) = map.add(pos, dir) else { return false };
         if map[to] == Tile::Wall {
-            dir = dir + Dir::R;
+            dir = dir + Dir::E;
         } else {
             pos = to;
         }
@@ -62,11 +62,11 @@ fn part2(start: Coords, map: &mut Map<Tile>) -> Result<usize> {
 
 #[main]
 fn day6(inp: &'static str) -> Result<()> {
-    let (_, mut map) = Map::<Tile>::parse::<_, nom::error::Error<_>>(inp)?;
+    let (_, mut map) = nom_err(Map::<Tile>::parse(inp))?;
     let (start, _) = map.iter().filter(|(_, t)| **t == Tile::Start).next().unwrap();
 
-    dbg!(part1(start, &mut map));
-    dbg!(part2(start, &mut map));
+    dbg!(part1(start, &mut map)?);
+    dbg!(part2(start, &mut map)?);
 
     Ok(())
 }

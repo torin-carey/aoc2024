@@ -19,14 +19,14 @@ fn part1(map: &Map<Tile>) -> Result<usize> {
             continue
         }
 
-        for (cm, dir) in map.neigh_diag(cx) {
+        for (cm, dir) in map.neigh(cx, true, true) {
             if map[cm] != Tile::M {
                 continue
             }
-            let Some(ca) = map.add_diag(cm, dir) else {
+            let Some(ca) = map.add(cm, dir) else {
                 continue
             };
-            let Some(cs) = map.add_diag(ca, dir) else {
+            let Some(cs) = map.add(ca, dir) else {
                 continue
             };
             if map[ca] == Tile::A && map[cs] == Tile::S {
@@ -43,16 +43,16 @@ fn part2(map: &Map<Tile>) -> Result<usize> {
         if tile != &Tile::A {
             continue
         }
-        let neigh: SmallVec<[_; 4]> = map.neigh_diag_only(coord)
+        let neigh: SmallVec<[_; 4]> = map.neigh(coord, false, true)
                 .into_iter().map(|(c, _)| map[c]).collect();
         if neigh.len() != 4 {
             continue
         }
         let xmas = match (neigh[0], neigh[1], neigh[2], neigh[3]) {
             (Tile::M, Tile::M, Tile::S, Tile::S) => true,
-            (Tile::M, Tile::S, Tile::M, Tile::S) => true,
+            (Tile::M, Tile::S, Tile::S, Tile::M) => true,
             (Tile::S, Tile::S, Tile::M, Tile::M) => true,
-            (Tile::S, Tile::M, Tile::S, Tile::M) => true,
+            (Tile::S, Tile::M, Tile::M, Tile::S) => true,
             _ => false
         };
         if xmas {

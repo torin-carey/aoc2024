@@ -1,4 +1,4 @@
-use crate::types::{Dir, DiagDir};
+use crate::types::Dir;
 use nom::{IResult, InputIter, InputLength, InputTakeAtPosition, AsChar, Slice};
 use nom::error::{ParseError, FromExternalError, ErrorKind};
 use nom::character::complete::newline;
@@ -66,28 +66,14 @@ impl<T> Map<T> {
 
     pub fn add(&self, (x, y): Coords, dir: Dir) -> Option<Coords> {
         let raw_coords = match dir {
-            Dir::U => (x, y.wrapping_sub(1)),
-            Dir::D => (x, y.wrapping_add(1)),
-            Dir::L => (x.wrapping_sub(1), y),
-            Dir::R => (x.wrapping_add(1), y),
-        };
-        if self.valid(raw_coords) {
-            Some(raw_coords)
-        } else {
-            None
-        }
-    }
-
-    pub fn add_diag(&self, (x, y): Coords, dir: DiagDir) -> Option<Coords> {
-        let raw_coords = match dir {
-            DiagDir::N  => (x                , y.wrapping_sub(1)),
-            DiagDir::NE => (x.wrapping_add(1), y.wrapping_sub(1)),
-            DiagDir::E  => (x.wrapping_add(1), y),
-            DiagDir::SE => (x.wrapping_add(1), y.wrapping_add(1)),
-            DiagDir::S  => (x                , y.wrapping_add(1)),
-            DiagDir::SW => (x.wrapping_sub(1), y.wrapping_add(1)),
-            DiagDir::W  => (x.wrapping_sub(1), y),
-            DiagDir::NW => (x.wrapping_sub(1), y.wrapping_sub(1)),
+            Dir::N  => (x                , y.wrapping_sub(1)),
+            Dir::NE => (x.wrapping_add(1), y.wrapping_sub(1)),
+            Dir::E  => (x.wrapping_add(1), y),
+            Dir::SE => (x.wrapping_add(1), y.wrapping_add(1)),
+            Dir::S  => (x                , y.wrapping_add(1)),
+            Dir::SW => (x.wrapping_sub(1), y.wrapping_add(1)),
+            Dir::W  => (x.wrapping_sub(1), y),
+            Dir::NW => (x.wrapping_sub(1), y.wrapping_sub(1)),
         };
         if self.valid(raw_coords) {
             Some(raw_coords)
@@ -104,75 +90,39 @@ impl<T> Map<T> {
         (idx % self.width(), idx / self.width())
     }
 
-    pub fn neigh(&self, (x, y): Coords) -> SmallVec<[(Coords, Dir); 4]> {
+    pub fn neigh(&self, (x, y): Coords, adj: bool, diag: bool) -> SmallVec<[(Coords, Dir); 8]> {
         assert!(self.valid((x, y)));
         let mut vec = SmallVec::new();
-        if y > 0 {
-            vec.push(((x, y-1), Dir::U));
+        if adj && y > 0 {
+            vec.push(((x, y-1), Dir::N));
         }
-        if y < self.height()-1 {
-            vec.push(((x, y+1), Dir::D));
+        if diag && y > 0 && x < self.width()-1 {
+            vec.push(((x+1, y-1), Dir::NE));
         }
-        if x > 0 {
-            vec.push(((x-1, y), Dir::L));
+        if adj && x < self.width()-1 {
+            vec.push(((x+1, y), Dir::E));
         }
-        if x < self.width()-1 {
-            vec.push(((x+1, y), Dir::R));
+        if diag && y < self.height()-1 && x < self.width()-1 {
+            vec.push(((x+1, y+1), Dir::SE));
         }
-        vec
-    }
-
-    pub fn neigh_diag(&self, (x, y): Coords) -> SmallVec<[(Coords, DiagDir); 8]> {
-        assert!(self.valid((x, y)));
-        let mut vec = SmallVec::new();
-        if y > 0 {
-            vec.push(((x, y-1), DiagDir::N));
+        if adj && y < self.height()-1 {
+            vec.push(((x, y+1), Dir::S));
         }
-        if y < self.height()-1 {
-            vec.push(((x, y+1), DiagDir::S));
+        if diag && y < self.height()-1 && x > 0 {
+            vec.push(((x-1, y+1), Dir::SW));
         }
-        if x > 0 {
-            vec.push(((x-1, y), DiagDir::W));
+        if adj && x > 0 {
+            vec.push(((x-1, y), Dir::W));
         }
-        if x < self.width()-1 {
-            vec.push(((x+1, y), DiagDir::E));
-        }
-        if y > 0 && x > 0 {
-            vec.push(((x-1, y-1), DiagDir::NW));
-        }
-        if y < self.height()-1 && x > 0 {
-            vec.push(((x-1, y+1), DiagDir::SW));
-        }
-        if y > 0 && x < self.width()-1 {
-            vec.push(((x+1, y-1), DiagDir::NE));
-        }
-        if y < self.height()-1 && x < self.width()-1 {
-            vec.push(((x+1, y+1), DiagDir::SE));
-        }
-        vec
-    }
-
-    pub fn neigh_diag_only(&self, (x, y): Coords) -> SmallVec<[(Coords, DiagDir); 4]> {
-        assert!(self.valid((x, y)));
-        let mut vec = SmallVec::new();
-        if y > 0 && x > 0 {
-            vec.push(((x-1, y-1), DiagDir::NW));
-        }
-        if y < self.height()-1 && x > 0 {
-            vec.push(((x-1, y+1), DiagDir::SW));
-        }
-        if y > 0 && x < self.width()-1 {
-            vec.push(((x+1, y-1), DiagDir::NE));
-        }
-        if y < self.height()-1 && x < self.width()-1 {
-            vec.push(((x+1, y+1), DiagDir::SE));
+        if diag && y > 0 && x > 0 {
+            vec.push(((x-1, y-1), Dir::NW));
         }
         vec
     }
 
     pub fn iter(&self) -> MapIterator<'_, T> {
         MapIterator {
-            map: &self,
+            map: self,
             idx: 0,
         }
     }

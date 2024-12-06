@@ -8,6 +8,7 @@ pub mod prelude {
     pub use aoc_macros::{ParseTile, DisplayTile, main};
 
     pub use nom::IResult;
+    pub use nom::error::Error as NomError;
     pub use nom::character::complete::{char as nom_char, newline, line_ending, space1, space0};
     pub use nom::character::complete::{anychar, alpha1, alpha0};
     pub use nom::character::complete::{u8 as nom_u8, u16 as nom_u16, u32 as nom_u32, u64 as nom_u64};
@@ -30,5 +31,9 @@ pub mod prelude {
         let mut buf = String::new();
         stdin().read_to_string(&mut buf).unwrap();
         buf
+    }
+
+    pub fn nom_err<T>(r: IResult<&str, T>) -> IResult<&str, T> {
+        r
     }
 }
