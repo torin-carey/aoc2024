@@ -12,7 +12,7 @@ enum Tile {
     Hit,
 }
 
-fn part1(mut pos: Coords, mut map: Map<Tile>) -> Result<usize> {
+fn part1(mut pos: Coords, map: &mut Map<Tile>) -> Result<usize> {
     let mut dir = Dir::U;
 
     loop {
@@ -42,30 +42,31 @@ fn does_loop(mut pos: Coords, map: &Map<Tile>, set: &mut HashSet<(Coords, Dir)>)
     true
 }
 
-fn part2(start: Coords, mut map: Map<Tile>) -> Result<usize> {
+fn part2(start: Coords, map: &mut Map<Tile>) -> Result<usize> {
     let mut set = HashSet::new();
     let mut count = 0;
+    map[start] = Tile::Start;
     for idx in 0..map.width()*map.height() {
         let coord = map.coords(idx);
-        if map[coord] != Tile::Empty {
+        if map[coord] != Tile::Hit {
             continue
         }
         map[coord] = Tile::Wall;
         if does_loop(start, &map, &mut set) {
             count += 1;
         }
-        map[coord] = Tile::Empty;
+        map[coord] = Tile::Hit;
     }
     Ok(count)
 }
 
 #[main]
 fn day6(inp: &'static str) -> Result<()> {
-    let (_, map) = Map::<Tile>::parse::<_, nom::error::Error<_>>(inp)?;
+    let (_, mut map) = Map::<Tile>::parse::<_, nom::error::Error<_>>(inp)?;
     let (start, _) = map.iter().filter(|(_, t)| **t == Tile::Start).next().unwrap();
 
-    dbg!(part1(start, map.clone()));
-    dbg!(part2(start, map.clone()));
+    dbg!(part1(start, &mut map));
+    dbg!(part2(start, &mut map));
 
     Ok(())
 }
