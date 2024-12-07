@@ -16,7 +16,7 @@ pub mod prelude {
     pub use nom::bytes::complete::{tag, take_while_m_n};
     pub use nom::sequence::{delimited, preceded, terminated, tuple, pair, separated_pair};
     pub use nom::branch::alt;
-    pub use nom::combinator::{map, map_res, value, recognize, iterator};
+    pub use nom::combinator::{eof, map, map_res, value, recognize, iterator};
     pub use nom::multi::{many1, many0, separated_list1, separated_list0};
 
     pub use smallvec::SmallVec;
