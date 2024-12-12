@@ -145,7 +145,14 @@ impl<'a, T: 'a> Iterator for MapIterator<'a, T> {
             None
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.map.tiles.len() - self.idx;
+        (len, Some(len))
+    }
 }
+
+impl<'a, T: 'a> ExactSizeIterator for MapIterator<'a, T> {}
 
 impl<'a, T> IntoIterator for &'a Map<T> {
     type Item = (Coords, &'a T);
