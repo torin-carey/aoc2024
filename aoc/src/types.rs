@@ -45,6 +45,19 @@ impl Dir {
             _ => unreachable!()
         }
     }
+
+    pub fn add_coords(self, coords: (usize, usize), jump: usize) -> (usize, usize) {
+        match self {
+            Dir::N  => (coords.0       , coords.1 - jump),
+            Dir::NE => (coords.0 + jump, coords.1 - jump),
+            Dir::E  => (coords.0 + jump, coords.1       ),
+            Dir::SE => (coords.0 + jump, coords.1 + jump),
+            Dir::S  => (coords.0       , coords.1 + jump),
+            Dir::SW => (coords.0 - jump, coords.1 + jump),
+            Dir::W  => (coords.0 - jump, coords.1       ),
+            Dir::NW => (coords.0 - jump, coords.1 - jump),
+        }
+    }
 }
 
 impl Add<Dir> for Dir {

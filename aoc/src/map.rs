@@ -49,6 +49,19 @@ impl<T: Clone> Map<T> {
             tiles: vec![tile; width*height],
         }
     }
+
+    pub fn from_buf(width: usize, tiles: Vec<T>) -> Self {
+        Self {
+            _width: NonZeroUsize::new(width),
+            tiles,
+        }
+    }
+
+    pub fn clear(&mut self, tile: T) {
+        for idx in 0..self.tiles.len() {
+            self.tiles[idx] = tile.clone();
+        }
+    }
 }
 
 impl<T> Map<T> {
