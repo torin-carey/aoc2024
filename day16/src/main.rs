@@ -1,6 +1,7 @@
 use aoc::prelude::*;
 
 #[derive(Copy, Clone, Debug, ParseTile, DisplayTile, PartialEq, Eq)]
+#[repr(u8)]
 pub enum Tile {
     #[tile('#')]
     Wall,
@@ -28,6 +29,10 @@ fn coords_diff(point: Point, end: Coords) -> (usize, usize, Dir) {
     }
 }
 
+/// Computes the cost of getting from point to end, assuming there are no
+/// walls in the path.
+///
+/// This is a lower bound for the true cost where walls are considered.
 fn heuristic(point: Point, end: Coords) -> usize {
     let (x, y, d) = coords_diff(point, end);
     if x == 0 && y == 0 {
@@ -55,107 +60,58 @@ fn heuristic(point: Point, end: Coords) -> usize {
     }
 }
 
-fn smallest_elem<T: Copy, F: Fn(T) -> usize>(set: &HashSet<T>, f: F) -> Option<T> {
-    let mut lowest = usize::MAX;
-    let mut val = None;
-    for p in set {
-        let m = f(*p);
-        if m < lowest {
-            lowest = m;
-            val = Some(*p);
-        }
-    }
-    val
-}
-
-fn build_path(end: Coords, from: HashMap<Point, SmallVec<[Point; 1]>>) -> HashSet<Coords> {
-    let mut set = HashSet::new();
-    let mut check = Vec::new();
-    check.push((end, Dir::N));
-    check.push((end, Dir::E));
-    check.push((end, Dir::S));
-    check.push((end, Dir::W));
-    while let Some(point) = check.pop() {
-        set.insert(point.0);
-        if let Some(froms) = from.get(&point) {
-            for f in froms {
-                check.push(*f);
-            }
-        }
-    }
-    set
-}
-
-fn shortest_paths(map: &Map<Tile>, start: Point, end: Coords) -> Option<(HashSet<Coords>, usize)> {
-    let mut open = HashSet::<Point>::new();
-    let mut gmap = HashMap::<Point, usize>::new();
-    let mut fmap = HashMap::<Point, usize>::new();
-    let mut camefrom = HashMap::<Point, SmallVec<[Point; 1]>>::new();
-    let h = |p: Point| heuristic(p, end);
-    open.insert(start);
-    gmap.insert(start, 0);
-    fmap.insert(start, h(start));
-
-    while let Some(p) = smallest_elem(&open, |p| fmap[&p]) {
-        if p.0 == end {
-            return Some((build_path(end, camefrom), gmap[&p]));
-        }
-        open.remove(&p);
-        let gp = gmap[&p];
-        let mut neighs = SmallVec::<[(Point, usize); 4]>::new();
-        let forwards = p.1.add_coords(p.0, 1);
-        if map[forwards] == Tile::Space {
-            neighs.push(((forwards, p.1), gp + 1));
-        }
-        neighs.push(((p.0, p.1 + Dir::E), gp + 1000));
-        neighs.push(((p.0, p.1 + Dir::S), gp + 2000));
-        neighs.push(((p.0, p.1 + Dir::W), gp + 1000));
-
-        for (neigh, g) in neighs {
-            let currentg = *gmap.get(&neigh).unwrap_or(&usize::MAX);
-            if g < currentg {
-                gmap.insert(neigh, g);
-                fmap.insert(neigh, g + h(neigh));
-                open.insert(neigh);
-                camefrom.insert(neigh, [p].into());
-            } else if g == currentg {
-                camefrom.get_mut(&neigh).unwrap().push(p);
-            }
-        }
-    }
-    None
-}
-
 #[main]
-fn day16(inp: &'static str) -> Result<()> {
-    let (_, mut map) = nom_err(Map::<Tile>::parse(inp))?;
+fn day16(inp: &'static str) {
+    let (_, mut map) = nom_err(Map::<Tile>::parse(inp)).unwrap();
 
     let (start, _) = map
         .iter()
-        .filter(|(c, t)| **t == Tile::Start)
+        .filter(|(_, t)| **t == Tile::Start)
         .next()
         .expect("expected start tile");
     let (end, _) = map
         .iter()
-        .filter(|(c, t)| **t == Tile::End)
+        .filter(|(_, t)| **t == Tile::End)
         .next()
         .expect("expected end tile");
     map[start] = Tile::Space;
     map[end] = Tile::Space;
 
-    println!("{map}");
+    println!("{map}\n");
 
-    println!("{}", heuristic((start, Dir::E), end));
+    let astar = aoc::astar::AStar::run(
+        (start, Dir::E),
+        |p| heuristic(*p, end),
+        |p| {
+            let mut neighs = SmallVec::<[(Point, usize); 4]>::new();
+            let forwards = p.1.add_coords(p.0, 1);
+            if map[forwards] == Tile::Space {
+                neighs.push(((forwards, p.1), 1));
+            }
+            neighs.push(((p.0, p.1 + Dir::E), 1000));
+            neighs.push(((p.0, p.1 + Dir::S), 2000));
+            neighs.push(((p.0, p.1 + Dir::W), 1000));
+            neighs.into_iter()
+        },
+        |p| p.0 == end,
+    ).expect("no path from start to end");
 
-    let (points, cost) = shortest_paths(&map, (start, Dir::E), end).unwrap();
+    let cost = [Dir::N, Dir::E, Dir::S, Dir::W]
+        .into_iter()
+        .flat_map(|dir| astar.g_map.get(&(end, dir)).copied())
+        .min()
+        .unwrap();
 
-    println!("Part 1: {cost}");
+    let points: HashSet<_> = astar.shortest_paths_nodes(
+        [Dir::N, Dir::E, Dir::S, Dir::W].into_iter().map(|dir| (end, dir))
+    ).into_iter().map(|(p, _)| p).collect();
+
 
     for point in &points {
         map[*point] = Tile::Short;
     }
-    println!("{map}");
-    println!("Part 2: {}", points.len());
+    println!("{map}\n");
 
-    Ok(())
+    println!("Part 1: {cost}");
+    println!("Part 2: {}", points.len());
 }

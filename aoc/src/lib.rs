@@ -1,5 +1,6 @@
 pub mod map;
 pub mod types;
+pub mod astar;
 
 pub mod prelude {
     pub use super::map::{ParseTile, DisplayTile, Map, Coords};

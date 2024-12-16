@@ -36,4 +36,3 @@ resolver = "2"
 opt-level = 3
 overflow-checks = false
 strip = true
-panic = "abort"
