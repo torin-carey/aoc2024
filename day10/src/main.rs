@@ -7,7 +7,7 @@ impl ParseTile for Tile {
     fn from_char(ch: char) -> Option<Self> {
         match ch {
             '0'..='9' => Some(Tile(ch as u8 - '0' as u8)),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -20,7 +20,7 @@ fn reachable(map: &Map<Tile>, head: Coords) -> (usize, usize) {
     while let Some(coord) = queue.pop_front() {
         for (n, _) in map.neigh(coord, true, false) {
             if map[n].0 != map[coord].0 + 1 {
-                continue
+                continue;
             }
             if map[n] == Tile(9) {
                 part1.insert(n);
@@ -40,7 +40,7 @@ fn day10(inp: &'static str) -> Result<()> {
     let (mut part1, mut part2) = (0, 0);
     for (coord, tile) in map.iter() {
         if *tile != Tile(0) {
-            continue
+            continue;
         }
 
         let (p1, p2) = reachable(&map, coord);

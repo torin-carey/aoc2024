@@ -4,7 +4,10 @@ fn even_split(i: u64) -> Option<(u64, u64)> {
     let format = format!("{i}");
     if format.len() % 2 == 0 {
         let len = format.len() / 2;
-        Some((format[..len].parse().unwrap(), format[len..].parse().unwrap()))
+        Some((
+            format[..len].parse().unwrap(),
+            format[len..].parse().unwrap(),
+        ))
     } else {
         None
     }
@@ -21,7 +24,7 @@ fn blink(rocks: &mut HashMap<u64, usize>, count: usize) -> usize {
                 *tmp.entry(a).or_default() += *c;
                 *tmp.entry(b).or_default() += *c;
             } else {
-                *tmp.entry(rock*2024).or_default() += *c;
+                *tmp.entry(rock * 2024).or_default() += *c;
             }
         }
         std::mem::swap(rocks, &mut tmp);

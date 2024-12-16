@@ -1,12 +1,12 @@
 use smallvec::SmallVec;
 
-use std::collections::{
-    HashSet,
-    HashMap,
-};
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
-fn take_smallest<T: Clone + Eq + Hash, F: Fn(&T) -> usize>(set: &mut HashSet<T>, f: F) -> Option<T> {
+fn take_smallest<T: Clone + Eq + Hash, F: Fn(&T) -> usize>(
+    set: &mut HashSet<T>,
+    f: F,
+) -> Option<T> {
     let mut lowest = usize::MAX;
     let mut val = None;
     for p in &*set {
@@ -31,7 +31,12 @@ pub struct AStar<T> {
 }
 
 impl<T: Clone + Eq + Hash> AStar<T> {
-    pub fn run<H, EdgesFrom, Edges, End>(start: T, h: H, edges: EdgesFrom, mut end: End) -> Option<Self>
+    pub fn run<H, EdgesFrom, Edges, End>(
+        start: T,
+        h: H,
+        edges: EdgesFrom,
+        mut end: End,
+    ) -> Option<Self>
     where
         H: Fn(&T) -> usize,
         EdgesFrom: Fn(&T) -> Edges,

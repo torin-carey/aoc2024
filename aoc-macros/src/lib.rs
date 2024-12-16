@@ -1,8 +1,8 @@
 use proc_macro2::TokenStream;
-use syn::{parse_macro_input, Attribute, DeriveInput, Data, LitChar, ItemFn};
-use syn::spanned::Spanned;
-use syn::parse::{Parse, ParseStream};
 use quote::quote;
+use syn::parse::{Parse, ParseStream};
+use syn::spanned::Spanned;
+use syn::{parse_macro_input, Attribute, Data, DeriveInput, ItemFn, LitChar};
 
 struct TileChar(LitChar);
 
@@ -28,8 +28,14 @@ pub fn derive_parsetile(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
 
     let enum_data = match input.data {
         Data::Enum(d) => d,
-        _ => return syn::Error::new(input.span(), "ParseTile derive macro can only be used on enum types")
-            .into_compile_error().into(),
+        _ => {
+            return syn::Error::new(
+                input.span(),
+                "ParseTile derive macro can only be used on enum types",
+            )
+            .into_compile_error()
+            .into()
+        }
     };
 
     let mut parse_cases = TokenStream::new();
@@ -37,12 +43,10 @@ pub fn derive_parsetile(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
     for variant in enum_data.variants {
         let variant_ident = variant.ident;
         match tile_tag(&variant.attrs) {
-            Ok(Some(ch)) => parse_cases.extend(std::iter::once(
-                TokenStream::from(quote! {
-                    #ch => Some(Self::#variant_ident),
-                })
-            )),
-            Ok(None) => {},
+            Ok(Some(ch)) => parse_cases.extend(std::iter::once(TokenStream::from(quote! {
+                #ch => Some(Self::#variant_ident),
+            }))),
+            Ok(None) => {}
             Err(e) => return e.into_compile_error().into(),
         }
     }
@@ -68,8 +72,14 @@ pub fn derive_displaytile(item: proc_macro::TokenStream) -> proc_macro::TokenStr
 
     let enum_data = match input.data {
         Data::Enum(d) => d,
-        _ => return syn::Error::new(input.span(), "DisplayTile derive macro can only be used on enum types")
-            .into_compile_error().into(),
+        _ => {
+            return syn::Error::new(
+                input.span(),
+                "DisplayTile derive macro can only be used on enum types",
+            )
+            .into_compile_error()
+            .into()
+        }
     };
 
     let mut parse_cases = TokenStream::new();
@@ -77,12 +87,10 @@ pub fn derive_displaytile(item: proc_macro::TokenStream) -> proc_macro::TokenStr
     for variant in enum_data.variants {
         let variant_ident = variant.ident;
         match tile_tag(&variant.attrs) {
-            Ok(Some(ch)) => parse_cases.extend(std::iter::once(
-                TokenStream::from(quote! {
-                    Self::#variant_ident => #ch,
-                })
-            )),
-            Ok(None) => {},
+            Ok(Some(ch)) => parse_cases.extend(std::iter::once(TokenStream::from(quote! {
+                Self::#variant_ident => #ch,
+            }))),
+            Ok(None) => {}
             Err(e) => return e.into_compile_error().into(),
         }
     }
@@ -101,7 +109,10 @@ pub fn derive_displaytile(item: proc_macro::TokenStream) -> proc_macro::TokenStr
 }
 
 #[proc_macro_attribute]
-pub fn main(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn main(
+    _attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
     let input = parse_macro_input!(item as ItemFn);
     let fn_name = &input.sig.ident.clone();
 
@@ -117,5 +128,6 @@ pub fn main(_attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> pr
             };
             #fn_name(s)
         }
-    }.into()
+    }
+    .into()
 }

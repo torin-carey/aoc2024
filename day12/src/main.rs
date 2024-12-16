@@ -24,7 +24,7 @@ fn day12(inp: &'static str) -> Result<()> {
             for dir in [Dir::N, Dir::E, Dir::S, Dir::W] {
                 let Some(neigh) = map.add(point, dir) else {
                     edge.insert((point, dir));
-                    continue
+                    continue;
                 };
                 if map[neigh] == ch && !region.contains(&neigh) {
                     scan.insert(neigh);
@@ -44,10 +44,12 @@ fn day12(inp: &'static str) -> Result<()> {
             for trans_dir in [Dir::E, Dir::W] {
                 let mut pos = coord;
                 loop {
-                    let Some(new_pos) = map.add(pos, dir + trans_dir) else { break };
+                    let Some(new_pos) = map.add(pos, dir + trans_dir) else {
+                        break;
+                    };
                     pos = new_pos;
                     if !edge.remove(&(pos, dir)) {
-                        break
+                        break;
                     }
                 }
             }

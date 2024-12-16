@@ -3,7 +3,7 @@ use aoc::prelude::*;
 fn parse_ordering(i: &str) -> IResult<&str, Vec<(u32, u32)>> {
     many1(terminated(
         separated_pair(nom_u32, nom_char('|'), nom_u32),
-        line_ending
+        line_ending,
     ))(i)
 }
 
@@ -20,13 +20,20 @@ fn in_order(row: &[u32], ords: &[(u32, u32)]) -> bool {
 
 fn order(row: &mut [u32], ords: &[(u32, u32)]) {
     let set: HashSet<_> = row.into_iter().collect();
-    let ords: Vec<(u32, u32)> = ords.into_iter()
+    let ords: Vec<(u32, u32)> = ords
+        .into_iter()
         .filter(|(a, b)| set.contains(a) && set.contains(b))
-        .copied().collect();
+        .copied()
+        .collect();
 
-    let find = |row: &[u32], val| row.into_iter()
-        .enumerate().filter(|(_, x)| **x == val)
-        .next().unwrap().0;
+    let find = |row: &[u32], val| {
+        row.into_iter()
+            .enumerate()
+            .filter(|(_, x)| **x == val)
+            .next()
+            .unwrap()
+            .0
+    };
 
     loop {
         let mut did_swap = false;
@@ -38,7 +45,7 @@ fn order(row: &mut [u32], ords: &[(u32, u32)]) {
             }
         }
         if !did_swap {
-            break
+            break;
         }
     }
 }
@@ -47,9 +54,13 @@ fn order(row: &mut [u32], ords: &[(u32, u32)]) {
 fn day5(inp: &'static str) -> Result<()> {
     let (i, ord) = terminated(parse_ordering, line_ending)(inp)?;
 
-    let mut rows = iterator(i, terminated(
-        separated_list1(nom_char::<_, nom::error::Error<_>>(','), nom_u32),
-        line_ending));
+    let mut rows = iterator(
+        i,
+        terminated(
+            separated_list1(nom_char::<_, nom::error::Error<_>>(','), nom_u32),
+            line_ending,
+        ),
+    );
 
     let (mut part1, mut part2) = (0, 0);
     for mut row in &mut rows {

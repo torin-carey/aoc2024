@@ -14,9 +14,9 @@ fn concatenate(a: u64, b: u64) -> u64 {
         100..1000 => 1000,
         1000..10000 => 10000,
         10000..100000 => 100000,
-        _ => panic!("concat table too small")
+        _ => panic!("concat table too small"),
     };
-    a*fact + b
+    a * fact + b
 }
 
 fn possible(target: u64, operands: &[u64], concat: bool) -> bool {
@@ -25,9 +25,9 @@ fn possible(target: u64, operands: &[u64], concat: bool) -> bool {
     while let Some((cur, rem)) = queue.pop_front() {
         let [next, rest @ ..] = rem else {
             if cur == target {
-                return true
+                return true;
             } else {
-                continue
+                continue;
             }
         };
         if cur + *next <= target {
@@ -37,8 +37,10 @@ fn possible(target: u64, operands: &[u64], concat: bool) -> bool {
             queue.push_back((cur * *next, rest));
         }
         if concat {
-            assert!(cur != 0 && *next != 0,
-                "concatenation is undefined for zero operands");
+            assert!(
+                cur != 0 && *next != 0,
+                "concatenation is undefined for zero operands"
+            );
             let c = concatenate(cur, *next);
             if c <= target {
                 queue.push_back((c, rest));

@@ -6,7 +6,7 @@ fn char_num(ch: char) -> Option<usize> {
     match ch {
         '0'..='9' => Some(ch as usize - '0' as usize),
         '\n' => None,
-        _ => panic!("unhandled char {ch}")
+        _ => panic!("unhandled char {ch}"),
     }
 }
 
@@ -16,12 +16,15 @@ fn part1(inp: &str) -> usize {
     let mut file = true;
     for ch in inp.chars() {
         let Some(len) = char_num(ch) else { break };
-        disk.extend(repeat(if file {
-            id += 1;
-            Some(id-1)
-        } else {
-            None
-        }).take(len));
+        disk.extend(
+            repeat(if file {
+                id += 1;
+                Some(id - 1)
+            } else {
+                None
+            })
+            .take(len),
+        );
         file = !file;
     }
 
@@ -31,7 +34,7 @@ fn part1(inp: &str) -> usize {
     let mut last_idx = disk.len();
     for (idx, val) in iter1 {
         if idx >= last_idx {
-            break
+            break;
         }
         let id = match val {
             Some(v) => v,
@@ -39,7 +42,7 @@ fn part1(inp: &str) -> usize {
                 let (idx2, val2) = iter2.next().expect("no more back elements");
                 last_idx = idx2;
                 if idx2 < idx {
-                    break
+                    break;
                 }
                 val2
             }
@@ -53,7 +56,7 @@ fn part1(inp: &str) -> usize {
 
 fn part2(inp: &str) -> usize {
     //                    pos    len
-    let mut files:  Vec<(usize, usize)> = Vec::new();
+    let mut files: Vec<(usize, usize)> = Vec::new();
     let mut spaces: Vec<(usize, usize)> = Vec::new();
 
     let mut pos = 0;
@@ -69,8 +72,7 @@ fn part2(inp: &str) -> usize {
         file = !file;
     }
 
-'file_loop:
-    for (idx, file) in files.iter_mut().enumerate().rev() {
+    'file_loop: for (idx, file) in files.iter_mut().enumerate().rev() {
         for (space_idx, space) in spaces.iter_mut().enumerate() {
             if idx > space_idx && space.1 >= file.1 {
                 // We should also merge the spaces around files original
@@ -79,7 +81,7 @@ fn part2(inp: &str) -> usize {
                 file.0 = space.0;
                 space.1 -= file.1;
                 space.0 += file.1;
-                continue 'file_loop
+                continue 'file_loop;
             }
         }
     }

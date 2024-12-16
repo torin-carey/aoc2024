@@ -1,10 +1,10 @@
 use crate::types::Dir;
-use nom::{IResult, InputIter, InputLength, InputTakeAtPosition, AsChar, Slice};
-use nom::error::{ParseError, FromExternalError, ErrorKind};
-use nom::character::complete::newline;
 use nom::bytes::complete::take_while1;
+use nom::character::complete::newline;
 use nom::combinator::iterator;
+use nom::error::{ErrorKind, FromExternalError, ParseError};
 use nom::sequence::terminated;
+use nom::{AsChar, IResult, InputIter, InputLength, InputTakeAtPosition, Slice};
 use smallvec::SmallVec;
 
 use std::fmt;
@@ -46,7 +46,7 @@ impl<T: Clone> Map<T> {
     pub fn new(width: usize, height: usize, tile: T) -> Self {
         Self {
             _width: NonZeroUsize::new(width),
-            tiles: vec![tile; width*height],
+            tiles: vec![tile; width * height],
         }
     }
 
@@ -79,13 +79,13 @@ impl<T> Map<T> {
 
     pub fn add(&self, (x, y): Coords, dir: Dir) -> Option<Coords> {
         let raw_coords = match dir {
-            Dir::N  => (x                , y.wrapping_sub(1)),
+            Dir::N => (x, y.wrapping_sub(1)),
             Dir::NE => (x.wrapping_add(1), y.wrapping_sub(1)),
-            Dir::E  => (x.wrapping_add(1), y),
+            Dir::E => (x.wrapping_add(1), y),
             Dir::SE => (x.wrapping_add(1), y.wrapping_add(1)),
-            Dir::S  => (x                , y.wrapping_add(1)),
+            Dir::S => (x, y.wrapping_add(1)),
             Dir::SW => (x.wrapping_sub(1), y.wrapping_add(1)),
-            Dir::W  => (x.wrapping_sub(1), y),
+            Dir::W => (x.wrapping_sub(1), y),
             Dir::NW => (x.wrapping_sub(1), y.wrapping_sub(1)),
         };
         if self.valid(raw_coords) {
@@ -96,7 +96,7 @@ impl<T> Map<T> {
     }
 
     pub fn idx(&self, (x, y): Coords) -> usize {
-        x + y*self.width()
+        x + y * self.width()
     }
 
     pub fn coords(&self, idx: usize) -> Coords {
@@ -107,37 +107,34 @@ impl<T> Map<T> {
         assert!(self.valid((x, y)));
         let mut vec = SmallVec::new();
         if adj && y > 0 {
-            vec.push(((x, y-1), Dir::N));
+            vec.push(((x, y - 1), Dir::N));
         }
-        if diag && y > 0 && x < self.width()-1 {
-            vec.push(((x+1, y-1), Dir::NE));
+        if diag && y > 0 && x < self.width() - 1 {
+            vec.push(((x + 1, y - 1), Dir::NE));
         }
-        if adj && x < self.width()-1 {
-            vec.push(((x+1, y), Dir::E));
+        if adj && x < self.width() - 1 {
+            vec.push(((x + 1, y), Dir::E));
         }
-        if diag && y < self.height()-1 && x < self.width()-1 {
-            vec.push(((x+1, y+1), Dir::SE));
+        if diag && y < self.height() - 1 && x < self.width() - 1 {
+            vec.push(((x + 1, y + 1), Dir::SE));
         }
-        if adj && y < self.height()-1 {
-            vec.push(((x, y+1), Dir::S));
+        if adj && y < self.height() - 1 {
+            vec.push(((x, y + 1), Dir::S));
         }
-        if diag && y < self.height()-1 && x > 0 {
-            vec.push(((x-1, y+1), Dir::SW));
+        if diag && y < self.height() - 1 && x > 0 {
+            vec.push(((x - 1, y + 1), Dir::SW));
         }
         if adj && x > 0 {
-            vec.push(((x-1, y), Dir::W));
+            vec.push(((x - 1, y), Dir::W));
         }
         if diag && y > 0 && x > 0 {
-            vec.push(((x-1, y-1), Dir::NW));
+            vec.push(((x - 1, y - 1), Dir::NW));
         }
         vec
     }
 
     pub fn iter(&self) -> MapIterator<'_, T> {
-        MapIterator {
-            map: self,
-            idx: 0,
-        }
+        MapIterator { map: self, idx: 0 }
     }
 }
 
@@ -248,8 +245,11 @@ impl<T: ParseTile> Map<T> {
         }
 
         self.tiles.reserve(len);
-        self.tiles.extend(input.iter_elements()
-            .map(|e| T::from_char(e.as_char()).unwrap()));
+        self.tiles.extend(
+            input
+                .iter_elements()
+                .map(|e| T::from_char(e.as_char()).unwrap()),
+        );
         Ok(())
     }
 
@@ -262,13 +262,14 @@ impl<T: ParseTile> Map<T> {
         E: FromExternalError<I, InvalidLength>,
     {
         let mut map = Self::default();
-        let mut iter = iterator(input,
-            terminated(take_while1(|ch| T::from_char(ch).is_some()), newline));
+        let mut iter = iterator(
+            input,
+            terminated(take_while1(|ch| T::from_char(ch).is_some()), newline),
+        );
         for row in &mut iter {
-            map.push_row(row.clone())
-                .map_err(|e| nom::Err::Error(E::from_external_error(
-                    row, ErrorKind::TakeWhile1, e
-                )))?
+            map.push_row(row.clone()).map_err(|e| {
+                nom::Err::Error(E::from_external_error(row, ErrorKind::TakeWhile1, e))
+            })?
         }
         Ok((iter.finish()?.0, map))
     }

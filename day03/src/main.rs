@@ -10,13 +10,10 @@ enum Token {
 impl Token {
     fn parse(i: &str) -> IResult<&str, Self> {
         alt((
-            map(tuple((
-                tag("mul("),
-                nom_u64,
-                tag(","),
-                nom_u64,
-                tag(")"),
-            )), |(_, a, _, b, _)| Token::Mul(a, b)),
+            map(
+                tuple((tag("mul("), nom_u64, tag(","), nom_u64, tag(")"))),
+                |(_, a, _, b, _)| Token::Mul(a, b),
+            ),
             value(Token::Do(true), tag("do()")),
             value(Token::Do(false), tag("don't()")),
             value(Token::Char, anychar),
@@ -32,9 +29,11 @@ fn day3(inp: &'static str) -> Result<()> {
     let mut tokens = iterator(inp, Token::parse);
     for token in &mut tokens {
         match token {
-            Token::Mul(a, b) => if enabled {
-                acc += a * b;
-            },
+            Token::Mul(a, b) => {
+                if enabled {
+                    acc += a * b;
+                }
+            }
             Token::Do(en) => enabled = en,
             _ => {}
         }

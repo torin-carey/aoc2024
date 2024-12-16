@@ -21,12 +21,15 @@ fn day13(inp: &'static str) -> Result<()> {
     let (_, (map, moves)) = nom_err(separated_pair(
         Map::<part1::Tile>::parse,
         line_ending,
-        many1(preceded(opt(line_ending), alt((
-            value(Dir::N, nom_char('^')),
-            value(Dir::E, nom_char('>')),
-            value(Dir::S, nom_char('v')),
-            value(Dir::W, nom_char('<')),
-        ))))
+        many1(preceded(
+            opt(line_ending),
+            alt((
+                value(Dir::N, nom_char('^')),
+                value(Dir::E, nom_char('>')),
+                value(Dir::S, nom_char('v')),
+                value(Dir::W, nom_char('<')),
+            )),
+        )),
     )(inp))?;
 
     let map2 = expand_map2(&map);

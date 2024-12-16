@@ -1,8 +1,4 @@
-use std::ops::{
-    Add, AddAssign,
-    Sub, SubAssign,
-    Mul, MulAssign,
-};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 #[repr(u8)]
@@ -21,13 +17,13 @@ pub enum Dir {
 impl Dir {
     pub fn as_quart(&self) -> usize {
         match self {
-            Dir::N  => 0,
+            Dir::N => 0,
             Dir::NE => 1,
-            Dir::E  => 2,
+            Dir::E => 2,
             Dir::SE => 3,
-            Dir::S  => 4,
+            Dir::S => 4,
             Dir::SW => 5,
-            Dir::W  => 6,
+            Dir::W => 6,
             Dir::NW => 7,
         }
     }
@@ -42,19 +38,19 @@ impl Dir {
             5 => Dir::SW,
             6 => Dir::W,
             7 => Dir::NW,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 
     pub fn add_coords(self, coords: (usize, usize), jump: usize) -> (usize, usize) {
         match self {
-            Dir::N  => (coords.0       , coords.1 - jump),
+            Dir::N => (coords.0, coords.1 - jump),
             Dir::NE => (coords.0 + jump, coords.1 - jump),
-            Dir::E  => (coords.0 + jump, coords.1       ),
+            Dir::E => (coords.0 + jump, coords.1),
             Dir::SE => (coords.0 + jump, coords.1 + jump),
-            Dir::S  => (coords.0       , coords.1 + jump),
+            Dir::S => (coords.0, coords.1 + jump),
             Dir::SW => (coords.0 - jump, coords.1 + jump),
-            Dir::W  => (coords.0 - jump, coords.1       ),
+            Dir::W => (coords.0 - jump, coords.1),
             Dir::NW => (coords.0 - jump, coords.1 - jump),
         }
     }

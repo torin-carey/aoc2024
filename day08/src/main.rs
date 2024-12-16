@@ -42,9 +42,9 @@ fn antinodes_part1(set: &mut HashSet<Coords>, map: &Map<Tile>, a: Coords, b: Coo
 
 fn reduce_d(dx: isize, dy: isize) -> (isize, isize) {
     if dx == 0 {
-        return (0, 1)
+        return (0, 1);
     } else if dy == 0 {
-        return (1, 0)
+        return (1, 0);
     }
     let c = num::integer::gcd(dx, dy);
     (dx / c, dy / c)
@@ -57,26 +57,26 @@ fn antinodes_part2(set: &mut HashSet<Coords>, map: &Map<Tile>, a: Coords, b: Coo
 
     let (x, y) = (a.0 as isize, a.1 as isize);
     for idx in 0.. {
-        let c = ((x - idx*dx) as usize, (y - idx*dy) as usize);
+        let c = ((x - idx * dx) as usize, (y - idx * dy) as usize);
         if map.valid(c) {
             set.insert(c);
         } else {
-            break
+            break;
         }
     }
     for idx in 1.. {
-        let c = ((x + idx*dx) as usize, (y + idx*dy) as usize);
+        let c = ((x + idx * dx) as usize, (y + idx * dy) as usize);
         if map.valid(c) {
             set.insert(c);
         } else {
-            break
+            break;
         }
     }
 }
 
 fn find_antinodes<F>(map: &Map<Tile>, antinodes: F) -> HashSet<Coords>
 where
-    F: Fn(&mut HashSet<Coords>, &Map<Tile>, Coords, Coords)
+    F: Fn(&mut HashSet<Coords>, &Map<Tile>, Coords, Coords),
 {
     let mut ant: HashMap<char, Vec<Coords>> = HashMap::new();
     for (coord, tile) in map {
@@ -87,7 +87,7 @@ where
 
     let mut anti = HashSet::new();
     for (_, col) in &ant {
-        for (a, b) in (0..col.len()-1).flat_map(|x| (x+1..col.len()).map(move |y| (x, y))) {
+        for (a, b) in (0..col.len() - 1).flat_map(|x| (x + 1..col.len()).map(move |y| (x, y))) {
             let (ca, cb) = (col[a], col[b]);
             antinodes(&mut anti, &map, ca, cb);
         }

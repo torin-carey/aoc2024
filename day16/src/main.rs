@@ -94,7 +94,8 @@ fn day16(inp: &'static str) {
             neighs.into_iter()
         },
         |p| p.0 == end,
-    ).expect("no path from start to end");
+    )
+    .expect("no path from start to end");
 
     let cost = [Dir::N, Dir::E, Dir::S, Dir::W]
         .into_iter()
@@ -102,10 +103,15 @@ fn day16(inp: &'static str) {
         .min()
         .unwrap();
 
-    let points: HashSet<_> = astar.shortest_paths_nodes(
-        [Dir::N, Dir::E, Dir::S, Dir::W].into_iter().map(|dir| (end, dir))
-    ).into_iter().map(|(p, _)| p).collect();
-
+    let points: HashSet<_> = astar
+        .shortest_paths_nodes(
+            [Dir::N, Dir::E, Dir::S, Dir::W]
+                .into_iter()
+                .map(|dir| (end, dir)),
+        )
+        .into_iter()
+        .map(|(p, _)| p)
+        .collect();
 
     for point in &points {
         map[*point] = Tile::Short;
