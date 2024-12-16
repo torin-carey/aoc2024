@@ -17,17 +17,16 @@ pub enum Tile {
 type Point = (Coords, Dir);
 
 fn coords_diff(point: Point, end: Coords) -> (usize, usize, Dir) {
-    if point.0.0 >= end.0 && point.0.1 >= end.1 {
-        (point.0.0 - end.0, point.0.1 - end.1, point.1)
-    } else if point.0.0 >= end.0 && point.0.1 < end.1 {
-        (point.0.0 - end.0, end.1 - point.0.1, point.1 + Dir::E)
-    } else if point.0.0 < end.0 && point.0.1 < end.1 {
-        (end.0 - point.0.0, end.1 - point.0.1, point.1 + Dir::S)
+    if point.0 .0 >= end.0 && point.0 .1 >= end.1 {
+        (point.0 .0 - end.0, point.0 .1 - end.1, point.1)
+    } else if point.0 .0 >= end.0 && point.0 .1 < end.1 {
+        (point.0 .0 - end.0, end.1 - point.0 .1, point.1 + Dir::E)
+    } else if point.0 .0 < end.0 && point.0 .1 < end.1 {
+        (end.0 - point.0 .0, end.1 - point.0 .1, point.1 + Dir::S)
     } else {
-        (end.0 - point.0.0, point.0.1 - end.1, point.1 + Dir::W)
+        (end.0 - point.0 .0, point.0 .1 - end.1, point.1 + Dir::W)
     }
 }
-
 
 fn heuristic(point: Point, end: Coords) -> usize {
     let (x, y, d) = coords_diff(point, end);
@@ -36,22 +35,22 @@ fn heuristic(point: Point, end: Coords) -> usize {
     } else if x == 0 {
         match d {
             Dir::N => y,
-            Dir::E|Dir::W => 1000 + y,
+            Dir::E | Dir::W => 1000 + y,
             Dir::S => 2000 + y,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     } else if y == 0 {
         match d {
             Dir::W => y,
-            Dir::N|Dir::S => 1000 + y,
+            Dir::N | Dir::S => 1000 + y,
             Dir::E => 2000 + y,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     } else {
         match d {
-            Dir::N|Dir::W => 1000 + x + y,
-            Dir::S|Dir::E => 2000 + x + y,
-            _ => unreachable!()
+            Dir::N | Dir::W => 1000 + x + y,
+            Dir::S | Dir::E => 2000 + x + y,
+            _ => unreachable!(),
         }
     }
 }
@@ -128,7 +127,7 @@ fn shortest_paths(map: &Map<Tile>, start: Point, end: Coords) -> Option<(HashSet
 }
 
 #[main]
-fn day13(inp: &'static str) -> Result<()> {
+fn day16(inp: &'static str) -> Result<()> {
     let (_, mut map) = nom_err(Map::<Tile>::parse(inp))?;
 
     let (start, _) = map
