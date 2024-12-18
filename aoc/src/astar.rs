@@ -28,6 +28,7 @@ pub struct AStar<T> {
     pub g_map: HashMap<T, usize>,
     pub f_map: HashMap<T, usize>,
     pub came_from: HashMap<T, SmallVec<[T; 1]>>,
+    pub triggered_end: T,
 }
 
 impl<T: Clone + Eq + Hash> AStar<T> {
@@ -59,6 +60,7 @@ impl<T: Clone + Eq + Hash> AStar<T> {
                     g_map,
                     f_map,
                     came_from,
+                    triggered_end: p,
                 });
             }
             open.remove(&p);
