@@ -1,20 +1,19 @@
 use aoc::prelude::*;
 
 fn count_tokens(input: &str, patterns: &[&str]) -> usize {
-    let mut map = BTreeMap::<usize, usize>::new();
-    map.insert(0, 1);
-    while let Some((len, count)) = map.pop_first() {
-        if len == input.len() {
-            return count;
+    let mut counts = vec![0usize; input.len() + 1];
+    counts[0] = 1;
+    for idx in 0..input.len() {
+        if counts[idx] == 0 {
+            continue;
         }
-        let rem = &input[len..];
         for pattern in patterns {
-            if rem.starts_with(*pattern) {
-                *(map.entry(len + pattern.len()).or_default()) += count;
+            if input[idx..].starts_with(*pattern) {
+                counts[idx + pattern.len()] += counts[idx];
             }
         }
     }
-    0
+    counts[input.len()]
 }
 
 #[main]
