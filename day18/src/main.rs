@@ -30,9 +30,9 @@ fn find_shortest(len: usize, input: &[Coords]) -> Option<usize> {
     };
     let end = |p: &Coords| *p == (len - 1, len - 1);
 
-    let astar = aoc::astar::AStar::run(start, h, edges, end)?;
+    let astar = aoc::astar::AStar::run(start, h, edges, end);
 
-    Some(astar.g_map[&astar.triggered_end])
+    astar.triggered_end.map(|e| astar.g_map[&e])
 }
 
 #[main]

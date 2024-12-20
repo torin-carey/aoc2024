@@ -47,6 +47,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc2318"
+version = "0.1.0"
+dependencies = [
+ "aoc",
+ "nom",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -153,6 +161,13 @@ dependencies = [
 
 [[package]]
 name = "day2"
+version = "0.1.0"
+dependencies = [
+ "aoc",
+]
+
+[[package]]
+name = "day20"
 version = "0.1.0"
 dependencies = [
  "aoc",

@@ -28,16 +28,11 @@ pub struct AStar<T> {
     pub g_map: HashMap<T, usize>,
     pub f_map: HashMap<T, usize>,
     pub came_from: HashMap<T, SmallVec<[T; 1]>>,
-    pub triggered_end: T,
+    pub triggered_end: Option<T>,
 }
 
 impl<T: Clone + Eq + Hash> AStar<T> {
-    pub fn run<H, EdgesFrom, Edges, End>(
-        start: T,
-        h: H,
-        edges: EdgesFrom,
-        mut end: End,
-    ) -> Option<Self>
+    pub fn run<H, EdgesFrom, Edges, End>(start: T, h: H, edges: EdgesFrom, mut end: End) -> Self
     where
         H: Fn(&T) -> usize,
         EdgesFrom: Fn(&T) -> Edges,
@@ -55,13 +50,13 @@ impl<T: Clone + Eq + Hash> AStar<T> {
 
         while let Some(p) = take_smallest(&mut open, |p| f_map[p]) {
             if end(&p) {
-                return Some(AStar {
+                return AStar {
                     open,
                     g_map,
                     f_map,
                     came_from,
-                    triggered_end: p,
-                });
+                    triggered_end: Some(p),
+                };
             }
             open.remove(&p);
             let gp = g_map[&p];
@@ -79,7 +74,13 @@ impl<T: Clone + Eq + Hash> AStar<T> {
                 }
             }
         }
-        None
+        AStar {
+            open,
+            g_map,
+            f_map,
+            came_from,
+            triggered_end: None,
+        }
     }
 
     pub fn shortest_paths_nodes<N>(&self, to: N) -> HashSet<T>
