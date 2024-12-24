@@ -10,7 +10,7 @@ pub mod prelude {
 
     pub use nom::branch::alt;
     pub use nom::bytes::complete::{tag, take_while_m_n};
-    pub use nom::character::complete::{alpha0, alpha1, anychar};
+    pub use nom::character::complete::{alpha0, alpha1, alphanumeric0, alphanumeric1, anychar};
     pub use nom::character::complete::{char as nom_char, line_ending, newline, space0, space1};
     pub use nom::character::complete::{
         i16 as nom_i16, i32 as nom_i32, i64 as nom_i64, i8 as nom_i8,
