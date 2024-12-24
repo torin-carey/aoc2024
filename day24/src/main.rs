@@ -92,8 +92,12 @@ impl<'a> Code<'a> {
     fn find_relabels(&mut self) {
         let mut carry: Option<&'a str> = None;
         for i in 0..N {
-            let Some(xi) = self.get_register('x', i) else { break };
-            let Some(yi) = self.get_register('y', i) else { break };
+            let Some(xi) = self.get_register('x', i) else {
+                break;
+            };
+            let Some(yi) = self.get_register('y', i) else {
+                break;
+            };
 
             let ei = self.canonical[&Op::new([xi, yi], Gate::Xor)];
             let ai = self.canonical[&Op::new([xi, yi], Gate::And)];
@@ -139,36 +143,41 @@ struct Inputs<'a> {
 
 impl<'a> Inputs<'a> {
     fn parse(i: &'a str) -> IResult<&'a str, Self> {
-        let (i, initial) = many1(
-            terminated(
-                separated_pair(alphanumeric1, tag(": "), alt((
-                    value(true, nom_char('1')),
-                    value(false, nom_char('0')),
-                ))),
-                line_ending
-            )
-        )(i)?;
+        let (i, initial) = many1(terminated(
+            separated_pair(
+                alphanumeric1,
+                tag(": "),
+                alt((value(true, nom_char('1')), value(false, nom_char('0')))),
+            ),
+            line_ending,
+        ))(i)?;
         let (i, _) = line_ending(i)?;
-        let (i, gates) = many1(
-            map(
-                tuple((
-                    alphanumeric1,
-                    Gate::parse,
-                    alphanumeric1,
-                    tag(" -> "),
-                    alphanumeric1,
-                    line_ending,
-                )),
-                |(a, g, b, _, o, _)| (a, b, g, o)
-            )
-        )(i)?;
-        Ok((i, Self { initial: initial.into_iter().collect(), gates }))
+        let (i, gates) = many1(map(
+            tuple((
+                alphanumeric1,
+                Gate::parse,
+                alphanumeric1,
+                tag(" -> "),
+                alphanumeric1,
+                line_ending,
+            )),
+            |(a, g, b, _, o, _)| (a, b, g, o),
+        ))(i)?;
+        Ok((
+            i,
+            Self {
+                initial: initial.into_iter().collect(),
+                gates,
+            },
+        ))
     }
 }
 
 fn eval<'a>(inputs: &Inputs<'a>) -> HashMap<&'a str, bool> {
     let mut state = inputs.initial.clone();
-    let mut gates: HashMap<_, _> = inputs.gates.iter()
+    let mut gates: HashMap<_, _> = inputs
+        .gates
+        .iter()
         .copied()
         .map(|(a, b, g, o)| (o, (a, b, g)))
         .collect();
@@ -192,7 +201,9 @@ fn eval<'a>(inputs: &Inputs<'a>) -> HashMap<&'a str, bool> {
 fn register(state: &HashMap<&str, bool>, reg: char) -> u64 {
     let mut res = 0;
     for (out, set) in state {
-        let Ok((_, shift)) = nom_err(delimited(nom_char(reg), nom_u64, eof)(*out)) else { continue };
+        let Ok((_, shift)) = nom_err(delimited(nom_char(reg), nom_u64, eof)(*out)) else {
+            continue;
+        };
         if *set {
             res |= 1 << shift;
         }
